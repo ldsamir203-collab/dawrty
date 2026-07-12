@@ -486,3 +486,36 @@ export default function App() {
       <header className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: COLORS.line }}>
         <div className="flex items-center gap-2">
           <Trophy size={22} style={{ color: COLORS.g
+      old }} />
+          <span className="text-xl font-black" style={{ fontFamily: CAIRO }}>دورتي</span>
+        </div>
+        {view.screen === "detail" && (
+          <button onClick={() => setView({ screen: "home" })} className="flex items-center gap-1 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded" style={{ color: COLORS.muted }}>
+            <ArrowRight size={16} /> رجوع
+          </button>
+        )}
+      </header>
+
+      {view.screen === "home" && (
+        <HomeScreen tournaments={tournaments} onOpen={(id) => setView({ screen: "detail", id })} onCreateClick={() => setShowCreate(true)} />
+      )}
+
+      {active && (
+        <DetailScreen
+          tournament={active}
+          onJoin={(name) => joinTournament(active.id, name)}
+          onSetWinner={(key, name) => setWinner(active.id, key, name)}
+          onCopyInvite={() => copyInvite(active.code)}
+        />
+      )}
+
+      {showCreate && <CreateModal onClose={() => setShowCreate(false)} onCreate={createTournament} />}
+
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-bold shadow-lg" style={{ backgroundColor: COLORS.gold, color: COLORS.bg }}>
+          {toast}
+        </div>
+      )}
+    </div>
+  );
+}
