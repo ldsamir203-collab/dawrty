@@ -485,8 +485,7 @@ export default function App() {
     <div dir="rtl" style={{ backgroundColor: COLORS.bg, minHeight: "100vh", fontFamily: TAJAWAL, color: COLORS.text }} className="w-full">
       <header className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: COLORS.line }}>
         <div className="flex items-center gap-2">
-          <Trophy size={22} style={{ color: COLORS.g
-      old }} />
+          <Trophy size={22} style={{ color: COLORS.gold }} />
           <span className="text-xl font-black" style={{ fontFamily: CAIRO }}>دورتي</span>
         </div>
         {view.screen === "detail" && (
