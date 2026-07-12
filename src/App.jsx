@@ -279,6 +279,210 @@ function HomeScreen({ tournaments, onOpen, onCreateClick }) {
     <main className="max-w-5xl mx-auto px-6 py-10">
       <div className="relative rounded-2xl overflow-hidden mb-12 flex flex-col md:flex-row shadow-2xl" style={{ backgroundColor: COLORS.surface, border: `1px solid ${COLORS.line}` }}>
         <div className="p-8 md:p-10 flex-1">
-          <p className="text-xs font-bold tracking-widest mb-3" style={{ color: COLORS.gold, fontFamily: CAIRO }}>eFOOTBALL · تنظيم الدوريات</p>
+          <p className="text-xs font-bold tracking-widest mb-3" style={{ color: COLORS.gold, fontFamily: CAIRO }}>eFOOTBALL tournaments</p>
           <h1 className="text-3xl md:text-4xl font-black leading-tight mb-4" style={{ fontFamily: CAIRO }}>
-            خلص من فوضى البوستات..<br /> نظّم دورتك بدعوة حقيق
+            خلص من فوضى البوستات.. نظّم دورتك بدعوة حقيقية
+          </h1>
+          <p className="text-sm md:text-base mb-6 max-w-md" style={{ color: COLORS.muted }}>
+            بدل ما تعتمد على بوست تايه بين المنشورات، أنشئ دورة إيفوتبول برابط دعوة واحد، تسجيل مباشر، وجدول مباريات بيتحدث لحاله.
+          </p>
+          <button onClick={onCreateClick} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" style={{ backgroundColor: COLORS.gold, color: COLORS.bg, fontFamily: CAIRO }}>
+            <Plus size={18} /> إنشاء دورة جديدة
+          </button>
+        </div>
+        <div className="hidden md:flex relative">
+          <PerforatedDivider />
+          <div className="w-48 flex flex-col items-center justify-center px-6 text-center" style={{ backgroundColor: COLORS.surface2 }}>
+            <span className="text-xs font-bold mb-2" style={{ color: COLORS.muted, fontFamily: CAIRO }}>دعوتك جاهزة</span>
+            <TicketCode code="XXXXXX" ghost />
+            <span className="text-xs mt-3" style={{ color: COLORS.muted }}>رابط واحد لكل اللاعبين</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-lg font-black" style={{ fontFamily: CAIRO }}>الدورات الحالية</h2>
+        <span className="text-xs" style={{ color: COLORS.muted }}>{tournaments.length} دورة</span>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-16">
+        {tournaments.map((t) => (
+          <TournamentCard key={t.id} t={t} onOpen={() => onOpen(t.id)} />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+function DetailScreen({ tournament, onJoin, onSetWinner, onCopyInvite }) {
+  const [name, setName] = useState("");
+  const t = tournament;
+  const full = t.players.length >= t.maxPlayers;
+  const rounds = t.players.length >= 2 ? buildRounds(t.players, t.winners) : null;
+
+  function submitJoin(e) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onJoin(name.trim());
+    setName("");
+  }
+
+  return (
+    <main className="max-w-4xl mx-auto px-6 py-10">
+      <h1 className="text-2xl font-black mb-1" style={{ fontFamily: CAIRO }}>{t.name}</h1>
+      <p className="text-sm mb-8" style={{ color: COLORS.muted }}>{t.format} · {t.players.length}/{t.maxPlayers} لاعب</p>
+
+      <div className="relative rounded-2xl overflow-hidden mb-10 flex flex-col sm:flex-row" style={{ backgroundColor: COLORS.surface, border: `1px solid ${COLORS.line}` }}>
+        <div className="p-6 flex-1">
+          <p className="text-xs font-bold mb-1" style={{ color: COLORS.gold, fontFamily: CAIRO }}>دعوة الدورة</p>
+          <p className="text-sm mb-4" style={{ color: COLORS.muted }}>شارك هالرابط مع كل اللاعبين، بيسجلوا بضغطة وحدة بدل ما تنشره كبوست عشوائي.</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-mono px-3 py-2 rounded-lg" style={{ backgroundColor: COLORS.bg, border: `1px solid ${COLORS.line}` }}>
+              dawrty.app/join/{t.code}
+            </span>
+            <button onClick={onCopyInvite} className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-yellow-400" style={{ backgroundColor: COLORS.gold, color: COLORS.bg, fontFamily: CAIRO }}>
+              <Copy size={14} /> نسخ
+            </button>
+          </div>
+        </div>
+        <div className="hidden sm:flex">
+          <PerforatedDivider />
+          <div className="w-40 flex items-center justify-center px-4" style={{ backgroundColor: COLORS.surface2 }}>
+            <TicketCode code={t.code} />
+          </div>
+        </div>
+      </div>
+
+      {!full ? (
+        <form onSubmit={submitJoin} className="flex gap-3 mb-10">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="اسمك أو اسم فريقك"
+            className="flex-1 bg-transparent outline-none text-sm py-3 px-4 rounded-full focus:ring-2 focus:ring-yellow-400"
+            style={{ border: `1px solid ${COLORS.line}`, color: COLORS.text }}
+          />
+          <button type="submit" className="px-6 py-3 rounded-full font-black text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" style={{ backgroundColor: COLORS.gold, color: COLORS.bg, fontFamily: CAIRO }}>
+            انضم للدورة
+          </button>
+        </form>
+      ) : (
+        <p className="mb-10 text-sm font-bold" style={{ color: COLORS.gold, fontFamily: CAIRO }}>اكتمل العدد، التسجيل مقفول</p>
+      )}
+
+      <div className="mb-12">
+        <h2 className="font-black text-base mb-4" style={{ fontFamily: CAIRO }}>اللاعبون المسجّلون</h2>
+        {t.players.length === 0 ? (
+          <p className="text-sm" style={{ color: COLORS.muted }}>لسا ما في حدا سجل. شارك رابط الدعوة!</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {t.players.map((p, i) => (
+              <span key={i} className="text-sm px-3 py-1.5 rounded-full" style={{ backgroundColor: COLORS.surface, border: `1px solid ${COLORS.line}` }}>{p}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {rounds && (
+        <div>
+          <h2 className="font-black text-base mb-5" style={{ fontFamily: CAIRO }}>جدول المباريات</h2>
+          <div className="flex gap-8 overflow-x-auto pb-4">
+            {rounds.slice(0, -1).map((roundPlayers, ri) => (
+              <div key={ri} className="flex flex-col justify-around gap-4 w-44 shrink-0">
+                <p className="text-xs font-bold mb-1" style={{ color: COLORS.muted, fontFamily: CAIRO }}>{roundName(ri, rounds.length - 1)}</p>
+                {Array.from({ length: roundPlayers.length / 2 }).map((_, mi) => {
+                  const a = roundPlayers[mi * 2], b = roundPlayers[mi * 2 + 1];
+                  const key = `r${ri}m${mi}`;
+                  const winner = t.winners[key];
+                  return <MatchCard key={key} a={a} b={b} winner={winner} onPick={(pl) => onSetWinner(key, pl)} />;
+                })}
+              </div>
+            ))}
+            <div className="flex flex-col justify-center w-40 shrink-0">
+              <p className="text-xs font-bold mb-2" style={{ color: COLORS.gold, fontFamily: CAIRO }}>البطل</p>
+              <div className="rounded-xl p-4 text-center" style={{ backgroundColor: COLORS.surface2, border: `1px solid ${COLORS.gold}` }}>
+                <Trophy size={20} style={{ color: COLORS.gold, margin: "0 auto 8px" }} />
+                <span className="font-black text-sm" style={{ fontFamily: CAIRO }}>
+                  {rounds[rounds.length - 1][0] && rounds[rounds.length - 1][0] !== "BYE" ? rounds[rounds.length - 1][0] : "قيد التحديد"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
+
+export default function App() {
+  const [tournaments, setTournaments] = useState(seedTournaments);
+  const [view, setView] = useState({ screen: "home" });
+  const [showCreate, setShowCreate] = useState(false);
+  const [toast, setToast] = useState("");
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&display=swap";
+    document.head.appendChild(link);
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(""), 2000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  function createTournament(data) {
+    const t = {
+      id: "t" + Date.now(),
+      name: data.name,
+      date: data.date,
+      maxPlayers: Number(data.maxPlayers),
+      format: data.format,
+      code: genCode(),
+      players: [],
+      winners: {},
+    };
+    setTournaments((prev) => [t, ...prev]);
+    setShowCreate(false);
+    setView({ screen: "detail", id: t.id });
+    setToast("تم إنشاء الدورة بنجاح");
+  }
+
+  function joinTournament(id, name) {
+    setTournaments((prev) =>
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        if (t.players.includes(name)) return t;
+        if (t.players.length >= t.maxPlayers) return t;
+        return { ...t, players: [...t.players, name] };
+      })
+    );
+    setToast("تم التسجيل بنجاح");
+  }
+
+  function setWinner(id, key, name) {
+    setTournaments((prev) =>
+      prev.map((t) => (t.id !== id ? t : { ...t, winners: { ...t.winners, [key]: name } }))
+    );
+  }
+
+  function copyInvite(code) {
+    const url = `dawrty.app/join/${code}`;
+    try {
+      navigator.clipboard.writeText(url);
+    } catch (e) {}
+    setToast("تم نسخ رابط الدعوة");
+  }
+
+  const active = view.screen === "detail" ? tournaments.find((t) => t.id === view.id) : null;
+
+  return (
+    <div dir="rtl" style={{ backgroundColor: COLORS.bg, minHeight: "100vh", fontFamily: TAJAWAL, color: COLORS.text }} className="w-full">
+      <header className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: COLORS.line }}>
+        <div className="flex items-center gap-2">
+          <Trophy size={22} style={{ color: COLORS.g
